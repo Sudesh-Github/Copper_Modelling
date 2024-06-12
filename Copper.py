@@ -12,16 +12,6 @@ import warnings
 warnings.filterwarnings("ignore")
 import pickle
 
-from sklearn.model_selection import train_test_split
-from sklearn.ensemble import ExtraTreesRegressor
-from sklearn.tree import DecisionTreeRegressor
-from xgboost import XGBRegressor
-from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
-from sklearn.preprocessing import StandardScaler,LabelEncoder
-from sklearn.svm import SVC
-import xgboost as xgb
-from sklearn.ensemble import RandomForestClassifier
-from sklearn.metrics import accuracy_score
 
 #page congiguration
 st.set_page_config(page_title= "Copper Modelling",
@@ -69,78 +59,84 @@ with right:
 
         with right:
             st.write("### MACHINE LEARNING MODEL")
-            st.write('#### REGRESSION - ***:red[EXTRATREEREGRESSOR]***')
+            st.write('#### REGRESSION - ***:red[EXTRA TREE REGRESSOR]***')
             st.write('- The ExtraTree Regressor is an ensemble learning method that belongs to the tree-based family of models.')
-            st.write('#### CLASSIFICATION - ***:green[RANDOMFORESTCLASSIFIER]***')
+            st.write('#### CLASSIFICATION - ***:green[RANDOM FOREST CLASSIFIER]***')
             st.write('- The RandomForestClassifier is an ensemble learning method that combines multiple decision trees to create a robust and accurate classification model.')
 
 
     
     if selected == "SELLING PRICE PREDICTION":
-        url_link2 = "https://assets8.lottiefiles.com/packages/lf20_OPFirj1e4d.json"
-        st_lottie = lottie_price1(url_link2)
-        st.markdown("# :blue[Predicting Results based on Trained Model]")
-        # -----New Data inputs from the user for predicting the selling price-----
-        a1 = st.text_input("Quantity")
-        b1 = st.text_input("Status")
-        c1 = st.text_input("Item Type")
-        d1 = st.text_input("Application")
-        e1 = st.text_input("Thickness")
-        f1 = st.text_input("Width")
-        g1 = st.text_input("Country")
-        h1 = st.text_input("Customer")
-        i1 = st.text_input("Product Reference")
-                
-        @st.cache_resource
-        @st.cache_data
+        with left:
+             url_link2 = "https://assets8.lottiefiles.com/packages/lf20_OPFirj1e4d.json"
+             st_lottie = lottie_price1(url_link2)
         
-        def load_model():
-            with open('model.pkl', 'rb') as file:
-                    model = pickle.load(file)
-            return model
+        with right:
+             
+            st.markdown("# :blue[Predicting Results based on Trained Model]")
+            # -----New Data inputs from the user for predicting the selling price-----
+            a1 = st.text_input("Quantity (Min:611728 & Max:1722207579) ")
+            b1 = st.text_input("Status (Enter 1 or 0)")
+            c1 = st.text_input("Item Type (Enter 1 or 0)")
+            d1 = st.text_input("Application (Min:2 & Max:1000)")
+            e1 = st.text_input("Thickness (Min:1 & Max:300)")
+            f1 = st.text_input("Width (Min:1, Max:2990)")
+            g1 = st.text_input("Country (Min:10 & Max:100)")
+            h1 = st.text_input("Customer (Min:12458 & Max:214748400)")
+            i1 = st.text_input("Product Reference (Min:611728 & Max:1722207579)")
+                    
+            @st.cache_resource
+            @st.cache_data
+            
+            def load_model():
+                with open('model.pkl', 'rb') as file:
+                        model = pickle.load(file)
+                return model
 
-        regression_model = load_model()
-        #st.write("Model loaded successfully.")
+            regression_model = load_model()
+            #st.write("Model loaded successfully.")
 
-        # -----Submit Button for PREDICT RESALE PRICE-----   
-        predict_button_1 = st.button("Predict Selling Price")
+            # -----Submit Button for PREDICT RESALE PRICE-----   
+            predict_button_1 = st.button("Predict Selling Price")
 
-        if predict_button_1:
-            try:
+            if predict_button_1:
+                try:
 
-                a1 = float(a1)
-                b1 = float(b1)
-                c1 = float(c1)
-                d1 = float(d1)
-                e1 = float(e1)
-                f1 = float(f1)
-                g1 = float(g1)
-                h1 = float(h1)
-                i1 = float(i1)
+                    a1 = float(a1)
+                    b1 = float(b1)
+                    c1 = float(c1)
+                    d1 = float(d1)
+                    e1 = float(e1)
+                    f1 = float(f1)
+                    g1 = float(g1)
+                    h1 = float(h1)
+                    i1 = float(i1)
 
-                # -----Sending the user enter values for prediction to our model-----
-                new_sample_1 = np.array(
-                        [[np.log(a1), b1, c1, d1, np.log(e1), f1, g1, h1, i1]])
-                new_pred_1 = regression_model.predict(new_sample_1)[0]
-                # Function to process the input
-                    # Attempt to convert the input to float
-                
-                st.write(f'Predicted Selling Price : :green[₹] :green[{new_pred_1}]')
-            except ValueError:
-                # Catch ValueError and display a user-friendly error message
-                st.error("Invalid input: Please enter a valid number.")
+                    # -----Sending the user enter values for prediction to our model-----
+                    new_sample_1 = np.array(
+                            [[np.log(a1), b1, c1, d1, np.log(e1), f1, g1, h1, i1]])
+                    new_pred_1 = regression_model.predict(new_sample_1)[0]
+                    # Function to process the input
+                        # Attempt to convert the input to float
+                    
+                    st.write(f'Predicted Selling Price : :green[₹] :green[{new_pred_1}]')
+                except ValueError:
+                    # Catch ValueError and display a user-friendly error message
+                    st.error("Invalid input: Please enter a valid number.")
 
-            st.info("The Predicted selling price may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
+                st.info("The Predicted selling price may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
 
 
 
     if selected=='STATUS':
+        with left:
              #url_link3 = "https://assets9.lottiefiles.com/packages/lf20_lw4olqnf.json"
              url_link3='https://assets8.lottiefiles.com/private_files/lf30_vsr6pvvl.json'
              lottie_status1(url_link3)
              url_link4= "https://assets1.lottiefiles.com/private_files/lf30_by9lgy8q.json"
              lottie_status1(url_link4)
 
+        with right:
              st.write(
                     '##### ***<span style="color:yellow">Fill all the fields and Press the below button to view the status :red[WON / LOST] of copper in the desired time range</span>***',
                     unsafe_allow_html=True)
@@ -153,16 +149,15 @@ with right:
 
              with cc2:
                     selling_price_cls= st.text_input('Enter Selling Price  (Min:1, Max:100001015)')
-                    item_cls = st.text_input('Item Type')
-                    country_cls= st.text_input('Country Code')
+                    item_cls = st.text_input('Item Type (Min:1 & Max: 6000)')
+                    country_cls= st.text_input('Country Code (Min:10 & Max:100)')
 
              with cc3:
-                    application_cls = st.text_input('Application Type')
-                    product_cls = st.text_input('Product Reference')
-                    item_delivery_date_cls = st.date_input("Estimated Delivery Date", datetime.date(2023,1, 1))
+                    application_cls = st.text_input('Application Type (Min:2 & Max:1000)')
+                    product_cls = st.text_input('Product Reference (Min:611728 & Max:1722207579)' )
+                    customer_cls = st.text_input('Customer Number (Min:12458 & Max:214748400)')
 
-                    reference_date = datetime.date(2023, 1, 1)
-                    days_since_reference = (item_delivery_date_cls - reference_date).days
+                    
              with cc1:
                     st.write('')
                     st.write('')
@@ -184,7 +179,7 @@ with right:
                                 selling_price_cls,
                                 application_cls,
                                 product_cls,
-                                days_since_reference,
+                                customer_cls,
                                 item_cls,
                                 country_cls
                                     ]
@@ -198,8 +193,5 @@ with right:
                         else:
                             st.write(f'Predicted Status : :red[LOST]')
 
-    st.info("The Predicted Status may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
-
-
-
+        st.info("The Predicted Status may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
 
