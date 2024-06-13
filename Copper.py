@@ -38,7 +38,7 @@ with right:
     st.markdown("<h1 style='text-align: center; color: red;'>COPPER SELLING PRICE PREDICTION AND STATUS</h1>",
                 unsafe_allow_html=True)
 
-    selected = option_menu(None, ['HOME',"SELLING PRICE PREDICTION","STATUS",],
+    selected = option_menu(None, ['HOME',"SELLING PRICE PREDICTION","STATUS","IMPROVISATION"],
                            icons=["house",'cash-coin','trophy'],orientation='horizontal',default_index=0)
 
     if selected=='HOME':
@@ -163,35 +163,123 @@ with right:
                     st.write('')
                     st.write('')
                     if st.button('PREDICT STATUS'):
+                        try:
 
-                        @st.cache_resource
-                        def load_model():
-                            with open('classfier_model.pkl', 'rb') as file:
-                                    model = pickle.load(file)
-                            return model
-                        
-                        classification_model = load_model()
+                            @st.cache_resource
+                            def load_model():
+                                with open('classfier_model.pkl', 'rb') as file:
+                                        model = pickle.load(file)
+                                return model
+                            
+                            classification_model = load_model()
 
-                        data_cls = [
-                                quantity_cls,
-                                thickness_cls,
-                                width_cls,
-                                selling_price_cls,
-                                application_cls,
-                                product_cls,
-                                customer_cls,
-                                item_cls,
-                                country_cls
-                                    ]
+                            data_cls = [
+                                    quantity_cls,
+                                    thickness_cls,
+                                    width_cls,
+                                    selling_price_cls,
+                                    application_cls,
+                                    product_cls,
+                                    customer_cls,
+                                    item_cls,
+                                    country_cls
+                                        ]
 
 
-                        x_cls = np.array(data_cls).reshape(1, -1)
-                        new_pred_2 = classification_model.predict(x_cls)
-                                
-                        if new_pred_2[0] ==1:
-                            st.write(f'Predicted Status : :green[WON]')
-                        else:
-                            st.write(f'Predicted Status : :red[LOST]')
+                            x_cls = np.array(data_cls).reshape(1, -1)
+                            new_pred_2 = classification_model.predict(x_cls)
+                                    
+                            if new_pred_2[0] ==1:
+                                st.write(f'Predicted Status : :green[WON]')
+                            else:
+                                st.write(f'Predicted Status : :red[LOST]')
+                        except ValueError:
+                            st.error("Invalid input: Please enter a valid number.")
 
-        st.info("The Predicted Status may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
+                    st.info("The Predicted Status may be differ from various reason like Supply and Demand Imbalances,Infrastructure and Transportation etc..",icon='ℹ️')
 
+
+    if selected=='IMPROVISATION':
+            import streamlit as st
+            import pandas as pd
+            import plotly.express as px
+            import requests 
+            from datetime import datetime
+            from time import sleep        
+
+            API_KEY = 'b97187410813c743eaf3fd4794364367'
+
+            def fetch_live_copper_price(api_key):
+                url = f"https://api.metalpriceapi.com/v1/latest?api_key={api_key}&base=USD&currencies=EUR,XAU,XAG"
+                
+                response = requests.get(url)
+                data = response.json()
+                copper_price = data['rates']['EUR']
+                return copper_price 
+            
+            # Initialize data storage
+            if 'price_data' not in st.session_state:
+                st.session_state.price_data = []
+
+            def update_data():
+                copper_price = fetch_live_copper_price(API_KEY)
+                timestamp = datetime.now()
+                st.session_state.price_data.append({'timestamp': timestamp, 'copper_price': copper_price})
+            
+            # Layout of the Streamlit app
+            st.title("Live Copper Dashboard")
+
+            # Update data every minute
+            st.button("Update Data", on_click=update_data)
+
+            # Show latest copper price
+            if st.session_state.price_data:
+                latest_data = st.session_state.price_data[-1]
+                st.metric(label="Current Copper Price (USD/ton)", value=f"${latest_data['copper_price']}")
+
+            # Convert data to DataFrame for visualization
+            if st.session_state.price_data:
+                df = pd.DataFrame(st.session_state.price_data)
+
+                # Plotting the copper price over time
+                fig = px.scatter(df,size='copper_price', x='timestamp', y='copper_price', title='Live Copper Price Over Time')
+                st.plotly_chart(fig)
+
+            # Auto-refresh every 30 seconds
+            if st.button("Start Auto-Refresh"):
+                st.session_state.auto_refresh = True
+
+            if st.button("Stop Auto-Refresh"):
+                st.session_state.auto_refresh = False
+
+            if 'auto_refresh' in st.session_state and st.session_state.auto_refresh:
+                sleep(30)
+                st.experimental_rerun()
+
+
+            # Load sample data for improvisation insights
+            improvisation_data = pd.read_csv('Copper_Final.csv')
+
+            # Set up the Streamlit layout
+            # Business Improvisation Section
+            st.header("Business Improvisation Details")
+            st.markdown("""
+            ### Key Insights and Actions
+            - **Copper Demand Analysis**: The demand for copper is projected to increase by 10% over the next year. Ensure adequate supply chain management to handle this increase.
+            - **Cost Optimization**: Focus on optimizing production costs by improving efficiency in the manufacturing process.
+            - **Market Trends**: Keep an eye on emerging markets, particularly in renewable energy sectors where copper usage is rising.
+            """)       
+            # Improvisation Data Insights
+            st.subheader('Improvisation Data Insights')
+            st.write(improvisation_data.head())
+
+            # Additional Visualizations
+            st.subheader('Market Trends Visualization')
+            fig = px.line(improvisation_data, x='quantity tons_log', y='selling_price_log', title='Copper Market Price Trends')
+            st.plotly_chart(fig)
+
+            if st.checkbox('Show Correlation Heatmap'):
+                st.subheader('Correlation Heatmap')
+                corr = improvisation_data.corr()
+                fig_corr = px.imshow(corr, text_auto=True, aspect="auto")
+                st.plotly_chart(fig_corr)
