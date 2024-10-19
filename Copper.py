@@ -87,7 +87,19 @@ with right:
                     
             @st.cache_resource
             @st.cache_data
+
+            import requests
+
+            def download_file_from_google_drive(file_id, destination):
+                URL = "https://drive.google.com/uc?id=" + file_id
+                response = requests.get(URL)
+                with open(destination, 'wb') as f:
+                    f.write(response.content)
             
+            # Replace 'your_file_id' with the actual file ID from the Google Drive link
+            file_id = '12kwuGOOM8GXgxPnQsdk0fTGcx5JosKcH'
+            download_file_from_google_drive(file_id, 'model.pkl')
+
             def load_model():
                 with open('model.pkl', 'rb') as file:
                         model = pickle.load(file)
