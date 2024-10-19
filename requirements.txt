@@ -9,8 +9,6 @@ streamlit-option-menu==0.4.0
 requests==2.32.3
 seaborn==0.13.2
 animation==0.0.7
-pyplot-cli==0.1.1
 streamlit-lottie==0.0.5
-pycopy-warnings==0.1.4
 
 
