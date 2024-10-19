@@ -6,6 +6,7 @@ import matplotlib.animation as animation
 import datetime
 import pandas as pd
 import numpy as np
+import requests
 import seaborn as sns
 import matplotlib.pyplot as plt
 import warnings
@@ -87,8 +88,6 @@ with right:
                     
             @st.cache_resource
             @st.cache_data
-
-            import requests
 
             def download_file_from_google_drive(file_id, destination):
                 URL = "https://drive.google.com/uc?id=" + file_id
